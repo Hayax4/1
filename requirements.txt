@@ -1,6 +1,6 @@
-Flask==2.0.3
-numpy==1.21.5
-sympy==1.10.1
-matplotlib==3.5.1
-gunicorn==20.1.0
-Werkzeug==2.0.3
+Flask==2.3.3
+numpy==1.26.0
+sympy==1.12
+matplotlib==3.8.0
+gunicorn==21.2.0
+Werkzeug==2.3.0
