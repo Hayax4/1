@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import numpy as np
 import sympy as sp
+from sympy import exp, log, ln, sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, E, pi
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -23,7 +24,14 @@ class OptimizacionWolfe:
         # Variables simbólicas
         self.n = len(x0)
         self.x = sp.symbols([f'x{i}' for i in range(self.n)])
-        self.f = sp.sympify(funcion_str)
+        
+        # Diccionario de funciones matemáticas disponibles
+        math_functions = {
+            'exp': exp, 'log': log, 'ln': ln, 'sin': sin, 'cos': cos, 'tan': tan,
+            'asin': asin, 'acos': acos, 'atan': atan, 'sinh': sinh, 'cosh': cosh, 'tanh': tanh,
+            'E': E, 'pi': pi
+        }
+        self.f = sp.sympify(funcion_str, locals=math_functions)
         
         # Gradiente y Hessiano
         self.grad = [sp.diff(self.f, var) for var in self.x]
