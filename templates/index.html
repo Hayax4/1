@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizador con Condiciones de Wolfe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-section, .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .variable-inputs {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f7f7f7;
+            border-radius: 5px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result-item {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f7f7f7;
+            border-radius: 5px;
+        }
+        
+        .result-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .result-value {
+            font-size: 1.1em;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+        
+        .error {
+            color: red;
+            padding: 10px;
+            background: #ffe6e6;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .grafico {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .grafico img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1>📊 Optimizador Numérico</h1>
+            <p>Métodos de Gradiente, Gradiente Conjugado y Newton con condiciones de Wolfe</p>
+            
+            <form id="optimizationForm">
+                <div class="form-group">
+                    <label>Método de optimización:</label>
+                    <select id="metodo" required>
+                        <option value="gradiente">Método del Gradiente</option>
+                        <option value="gradiente_conjugado">Método del Gradiente Conjugado</option>
+                        <option value="newton">Método de Newton</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Número de variables:</label>
+                    <input type="number" id="n_vars" min="1" max="5" value="2" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Función objetivo (usar x0, x1, ...):</label>
+                    <input type="text" id="funcion" value="x0**2 + x1**2" placeholder="Ej: x0**2 + x1**2" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Punto de partida:</label>
+                    <div id="x0_inputs"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Número máximo de iteraciones:</label>
+                    <input type="number" id="max_iter" value="100" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tolerancia de convergencia:</label>
+                    <input type="number" id="tol" value="1e-6" step="1e-7" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Parámetros de Wolfe:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label>c1 (Armijo):</label>
+                            <input type="number" id="c1" value="0.1" step="0.01" required>
+                        </div>
+                        <div>
+                            <label>c2 (Curvatura):</label>
+                            <input type="number" id="c2" value="0.9" step="0.01" required>
+                        </div>
+                    </div>
+                    <small>Condición: 0 &lt; c1 &lt; c2 &lt; 1</small>
+                </div>
+                
+                <button type="submit">🚀 Ejecutar Optimización</button>
+            </form>
+        </div>
+        
+        <div class="results-section">
+            <h2>📈 Resultados</h2>
+            <div id="results">
+                <div class="result-item">
+                    <div class="result-label">Punto mínimo encontrado:</div>
+                    <div class="result-value" id="punto_minimo">—</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Valor de la función:</div>
+                    <div class="result-value" id="valor_funcion">—</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Iteraciones realizadas:</div>
+                    <div class="result-value" id="iteraciones">—</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Error final:</div>
+                    <div class="result-value" id="error_final">—</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Criterio de parada:</div>
+                    <div class="result-value" id="criterio">—</div>
+                </div>
+            </div>
+            <div id="grafico" class="grafico"></div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Optimizando...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Generar inputs para punto inicial
+        function generarInputsX0() {
+            const n = parseInt(document.getElementById('n_vars').value);
+            const container = document.getElementById('x0_inputs');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < n; i++) {
+                const div = document.createElement('div');
+                div.style.marginBottom = '5px';
+                div.innerHTML = `
+                    <label style="display: inline-block; width: 50px;">x${i}:</label>
+                    <input type="number" id="x0_${i}" value="${i === 0 ? 1 : 1}" step="0.1" style="width: calc(100% - 60px);">
+                `;
+                container.appendChild(div);
+            }
+        }
+        
+        // Obtener punto inicial como array
+        function obtenerX0() {
+            const n = parseInt(document.getElementById('n_vars').value);
+            const x0 = [];
+            for (let i = 0; i < n; i++) {
+                x0.push(parseFloat(document.getElementById(`x0_${i}`).value));
+            }
+            return x0;
+        }
+        
+        // Validar función (básica)
+        function validarFuncion(funcion, n_vars) {
+            try {
+                // Reemplazar variables
+                let test_func = funcion;
+                for (let i = 0; i < n_vars; i++) {
+                    test_func = test_func.replace(new RegExp(`x${i}`, 'g'), '1');
+                }
+                eval(test_func);
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('n_vars').addEventListener('change', generarInputsX0);
+        generarInputsX0();
+        
+        document.getElementById('optimizationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const n_vars = parseInt(document.getElementById('n_vars').value);
+            const funcion = document.getElementById('funcion').value;
+            const x0 = obtenerX0();
+            
+            // Validaciones
+            if (x0.length !== n_vars) {
+                alert('Error: El punto inicial no coincide con el número de variables');
+                return;
+            }
+            
+            if (!validarFuncion(funcion, n_vars)) {
+                alert('Error: Función inválida. Use x0, x1, x2,... como variables');
+                return;
+            }
+            
+            const c1 = parseFloat(document.getElementById('c1').value);
+            const c2 = parseFloat(document.getElementById('c2').value);
+            
+            if (c1 <= 0 || c2 <= c1 || c2 >= 1) {
+                alert('Error: Los parámetros de Wolfe deben satisfacer 0 < c1 < c2 < 1');
+                return;
+            }
+            
+            // Mostrar loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.opacity = '0.5';
+            
+            const data = {
+                metodo: document.getElementById('metodo').value,
+                funcion: funcion,
+                x0: x0,
+                max_iter: document.getElementById('max_iter').value,
+                tol: parseFloat(document.getElementById('tol').value),
+                c1: c1,
+                c2: c2
+            };
+            
+            try {
+                const response = await fetch('/optimizar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.exito) {
+                    document.getElementById('punto_minimo').innerHTML = 
+                        `[${result.punto_minimo.map(x => x.toFixed(6)).join(', ')}]`;
+                    document.getElementById('valor_funcion').innerHTML = 
+                        result.valor_funcion.toExponential(6);
+                    document.getElementById('iteraciones').innerHTML = result.iteraciones;
+                    document.getElementById('error_final').innerHTML = 
+                        result.error_final.toExponential(6);
+                    document.getElementById('criterio').innerHTML = result.criterio_parada;
+                    document.getElementById('grafico').innerHTML = 
+                        `<h3>Gráfico de Convergencia</h3>
+                         <img src="data:image/png;base64,${result.grafico}" alt="Gráfico de convergencia">`;
+                    
+                    // Valor agregado: mostrar información adicional
+                    const valor_agregado = document.createElement('div');
+                    valor_agregado.className = 'result-item';
+                    valor_agregado.style.backgroundColor = '#e8f5e9';
+                    valor_agregado.innerHTML = `
+                        <div class="result-label">✨ Valor Agregado:</div>
+                        <div class="result-value">
+                            ✓ Condiciones de Wolfe verificadas en cada iteración<br>
+                            ✓ Búsqueda de línea adaptativa<br>
+                            ✓ ${result.iteraciones === parseInt(document.getElementById('max_iter').value) ? 
+                               '⚠ Se alcanzó el máximo de iteraciones' : 
+                               '✓ Convergencia alcanzada exitosamente'}
+                        </div>
+                    `;
+                    
+                    const existingValor = document.querySelector('.valor-agregado');
+                    if (existingValor) existingValor.remove();
+                    valor_agregado.classList.add('valor-agregado');
+                    document.getElementById('results').appendChild(valor_agregado);
+                    
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch(error) {
+                alert('Error de conexión: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.opacity = '1';
+            }
+        });
+    </script>
+</body>
+</html>
