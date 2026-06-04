@@ -406,111 +406,111 @@
             }
         });
         // Glosario modal
-const modal = document.getElementById('modalGlosario');
-const btnGlosario = document.getElementById('btnGlosario');
-const cerrarModal = document.getElementById('cerrarModal');
+        const modal = document.getElementById('modalGlosario');
+        const btnGlosario = document.getElementById('btnGlosario');
+        const cerrarModal = document.getElementById('cerrarModal');
 
-btnGlosario.onclick = function() {
-    modal.style.display = 'block';
-}
+        btnGlosario.onclick = function() {
+            modal.style.display = 'block';
+        }
 
-cerrarModal.onclick = function() {
-    modal.style.display = 'none';
-}
+        cerrarModal.onclick = function() {
+            modal.style.display = 'none';
+        }
 
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
     <!-- Modal del Glosario -->
-<div id="modalGlosario" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-    <div style="background-color: white; margin: 5% auto; padding: 20px; width: 80%; max-width: 600px; border-radius: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3);">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
-            <h2 style="color: #667eea; margin: 0;">📚 Glosario de Funciones</h2>
-            <span id="cerrarModal" style="font-size: 28px; font-weight: bold; cursor: pointer; color: #999;">&times;</span>
-        </div>
-        <div style="margin-top: 20px;">
-            <h3>📌 Funciones Matemáticas Permitidas</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr style="background: #f0f0f0;">
-                    <th style="padding: 10px; text-align: left;">Operación</th>
-                    <th style="padding: 10px; text-align: left;">Cómo escribir</th>
-                    <th style="padding: 10px; text-align: left;">Ejemplo</th>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Suma</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 + x1</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 + x1</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Resta</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 - x1</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 - x1</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Multiplicación</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 * x1</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>2 * x0</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Potencia</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0**2</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0**2 + x1**2</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Exponencial (e^x)</td>
+    <div id="modalGlosario" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="background-color: white; margin: 5% auto; padding: 20px; width: 80%; max-width: 600px; border-radius: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                <h2 style="color: #667eea; margin: 0;">📚 Glosario de Funciones</h2>
+                <span id="cerrarModal" style="font-size: 28px; font-weight: bold; cursor: pointer; color: #999;">&times;</span>
+            </div>
+            <div style="margin-top: 20px;">
+                <h3>📌 Funciones Matemáticas Permitidas</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #f0f0f0;">
+                        <th style="padding: 10px; text-align: left;">Operación</th>
+                        <th style="padding: 10px; text-align: left;">Cómo escribir</th>
+                        <th style="padding: 10px; text-align: left;">Ejemplo</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Suma</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 + x1</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 + x1</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Resta</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 - x1</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 - x1</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Multiplicación</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0 * x1</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>2 * x0</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Potencia</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0**2</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>x0**2 + x1**2</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Exponencial (e^x)</td>
                     <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>exp(x0)</code></td>
                     <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>exp(-x0**2)</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Logaritmo natural</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>log(x0)</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>log(1 + x0**2)</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Seno</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sin(x0)</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sin(x0)**2</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Coseno</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>cos(x0)</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>cos(x0) + cos(x1)</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Tangente</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>tan(x0)</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>tan(x0)</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Raíz cuadrada</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sqrt(x0)</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sqrt(x0**2 + x1**2)</code></td>
-                </tr>
-            </table>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Logaritmo natural</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>log(x0)</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>log(1 + x0**2)</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Seno</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sin(x0)</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sin(x0)**2</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Coseno</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>cos(x0)</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>cos(x0) + cos(x1)</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Tangente</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>tan(x0)</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>tan(x0)</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Raíz cuadrada</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sqrt(x0)</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sqrt(x0**2 + x1**2)</code></td>
+                    </tr>
+                </table>
             
-            <h3 style="margin-top: 20px;">📝 Ejemplos de funciones útiles</h3>
-            <ul style="list-style: none; padding: 0;">
-                <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                    <code>🔹 x0**2 + x1**2</code> → Mínimo en [0,0]
-                </li>
-                <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                    <code>🔹 (x0-2)**2 + (x1-3)**2</code> → Mínimo en [2,3]
-                </li>
-                <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                    <code>🔹 exp(-x0**2 - x1**2)</code> → Gaussiana
-                </li>
-                <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                    <code>🔹 sin(x0)**2 + cos(x1)**2</code> → Trigonométrica
-                </li>
-                <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                    <code>🔹 log(1 + x0**2 + x1**2)</code> → Logarítmica
-                </li>
-            </ul>
+                <h3 style="margin-top: 20px;">📝 Ejemplos de funciones útiles</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <code>🔹 x0**2 + x1**2</code> → Mínimo en [0,0]
+                    </li>
+                    <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <code>🔹 (x0-2)**2 + (x1-3)**2</code> → Mínimo en [2,3]
+                    </li>
+                    <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <code>🔹 exp(-x0**2 - x1**2)</code> → Gaussiana
+                    </li>
+                    <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <code>🔹 sin(x0)**2 + cos(x1)**2</code> → Trigonométrica
+                    </li>
+                    <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <code>🔹 log(1 + x0**2 + x1**2)</code> → Logarítmica
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>
