@@ -283,18 +283,31 @@
         
         // Validar función (básica)
         function validarFuncion(funcion, n_vars) {
-            try {
-                // Reemplazar variables
-                let test_func = funcion;
-                for (let i = 0; i < n_vars; i++) {
-                    test_func = test_func.replace(new RegExp(`x${i}`, 'g'), '1');
-                }
-                eval(test_func);
-                return true;
-            } catch(e) {
-                return false;
+            // Permitir funciones matemáticas comunes
+            const palabrasPermitidas = ['exp', 'log', 'ln', 'sin', 'cos', 'tan', 'sqrt', 'abs', 'E', 'pi'];
+            let test_func = funcion;
+    
+            // Reemplazar variables por 1
+            for (let i = 0; i < n_vars; i++) {
+                test_func = test_func.replace(new RegExp(`x${i}`, 'g'), '1');
             }
+    
+            try {
+           // Evaluar con funciones matemáticas disponibles
+            const mathContext = {
+                exp: Math.exp, log: Math.log, ln: Math.log, sin: Math.sin, 
+                cos: Math.cos, tan: Math.tan, sqrt: Math.sqrt, abs: Math.abs,
+                E: Math.E, pi: Math.PI
+            };
+        
+            // Crear función de evaluación
+            const evaluar = new Function(...Object.keys(mathContext), `return ${test_func}`);
+            evaluar(...Object.values(mathContext));
+            return true;
+        } catch(e) {
+            return false;
         }
+    }
         
         // Event listeners
         document.getElementById('n_vars').addEventListener('change', generarInputsX0);
