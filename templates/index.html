@@ -29,11 +29,11 @@
         }
         
         .form-section, .results-section {
-                background: rgba(255, 255, 255, 0.75);
-                border-radius: 15px;
-                padding: 25px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                backdrop-filter: blur(1px);
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(1px);
         }
         
         h1 {
@@ -255,175 +255,6 @@
         </div>
     </div>
     
-    <script>
-        // Generar inputs para punto inicial
-        function generarInputsX0() {
-            const n = parseInt(document.getElementById('n_vars').value);
-            const container = document.getElementById('x0_inputs');
-            container.innerHTML = '';
-            
-            for (let i = 0; i < n; i++) {
-                const div = document.createElement('div');
-                div.style.marginBottom = '5px';
-                div.innerHTML = `
-                    <label style="display: inline-block; width: 50px;">x${i}:</label>
-                    <input type="number" id="x0_${i}" value="${i === 0 ? 1 : 1}" step="0.1" style="width: calc(100% - 60px);">
-                `;
-                container.appendChild(div);
-            }
-        }
-        
-        // Obtener punto inicial como array
-        function obtenerX0() {
-            const n = parseInt(document.getElementById('n_vars').value);
-            const x0 = [];
-            for (let i = 0; i < n; i++) {
-                x0.push(parseFloat(document.getElementById(`x0_${i}`).value));
-            }
-            return x0;
-        }
-        
-        // Validar función (básica)
-        function validarFuncion(funcion, n_vars) {
-            // Permitir funciones matemáticas comunes
-            const palabrasPermitidas = ['exp', 'log', 'ln', 'sin', 'cos', 'tan', 'sqrt', 'abs', 'E', 'pi'];
-            let test_func = funcion;
-    
-            // Reemplazar variables por 1
-            for (let i = 0; i < n_vars; i++) {
-                test_func = test_func.replace(new RegExp(`x${i}`, 'g'), '1');
-            }
-    
-            try {
-           // Evaluar con funciones matemáticas disponibles
-            const mathContext = {
-                exp: Math.exp, log: Math.log, ln: Math.log, sin: Math.sin, 
-                cos: Math.cos, tan: Math.tan, sqrt: Math.sqrt, abs: Math.abs,
-                E: Math.E, pi: Math.PI
-            };
-        
-            // Crear función de evaluación
-            const evaluar = new Function(...Object.keys(mathContext), `return ${test_func}`);
-            evaluar(...Object.values(mathContext));
-            return true;
-        } catch(e) {
-            return false;
-        }
-    }
-        
-        // Event listeners
-        document.getElementById('n_vars').addEventListener('change', generarInputsX0);
-        generarInputsX0();
-        
-        document.getElementById('optimizationForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const n_vars = parseInt(document.getElementById('n_vars').value);
-            const funcion = document.getElementById('funcion').value;
-            const x0 = obtenerX0();
-            
-            // Validaciones
-            if (x0.length !== n_vars) {
-                alert('Error: El punto inicial no coincide con el número de variables');
-                return;
-            }
-            
-            if (!validarFuncion(funcion, n_vars)) {
-                alert('Error: Función inválida. Use x0, x1, x2,... como variables');
-                return;
-            }
-            
-            const c1 = parseFloat(document.getElementById('c1').value);
-            const c2 = parseFloat(document.getElementById('c2').value);
-            
-            if (c1 <= 0 || c2 <= c1 || c2 >= 1) {
-                alert('Error: Los parámetros de Wolfe deben satisfacer 0 < c1 < c2 < 1');
-                return;
-            }
-            
-            // Mostrar loading
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('results').style.opacity = '0.5';
-            
-            const data = {
-                metodo: document.getElementById('metodo').value,
-                funcion: funcion,
-                x0: x0,
-                max_iter: document.getElementById('max_iter').value,
-                tol: parseFloat(document.getElementById('tol').value),
-                c1: c1,
-                c2: c2
-            };
-            
-            try {
-                const response = await fetch('/optimizar', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.exito) {
-                    document.getElementById('punto_minimo').innerHTML = 
-                        `[${result.punto_minimo.map(x => x.toFixed(6)).join(', ')}]`;
-                    document.getElementById('valor_funcion').innerHTML = 
-                        result.valor_funcion.toExponential(6);
-                    document.getElementById('iteraciones').innerHTML = result.iteraciones;
-                    document.getElementById('error_final').innerHTML = 
-                        result.error_final.toExponential(6);
-                    document.getElementById('criterio').innerHTML = result.criterio_parada;
-                    document.getElementById('grafico').innerHTML = 
-                        `<h3>Gráfico de Convergencia</h3>
-                         <img src="data:image/png;base64,${result.grafico}" alt="Gráfico de convergencia">`;
-                    
-                    // Información de convergencia
-                    const valor_agregado = document.createElement('div');
-                    valor_agregado.className = 'result-item';
-                    valor_agregado.style.backgroundColor = '#e8f5e9';
-                    valor_agregado.innerHTML = `
-                        <div class="result-label">🐎 Convergencia:</div>
-                        <div class="result-value">
-                            ${result.iteraciones === parseInt(document.getElementById('max_iter').value) ? 
-                               '⚠ Se alcanzó el máximo de iteraciones' : 
-                               '✓ Convergencia alcanzada exitosamente'}
-                        </div>
-                    `;
-                    
-                    const existingValor = document.querySelector('.valor-agregado');
-                    if (existingValor) existingValor.remove();
-                    valor_agregado.classList.add('valor-agregado');
-                    document.getElementById('results').appendChild(valor_agregado);
-                    
-                } else {
-                    alert('Error: ' + result.error);
-                }
-            } catch(error) {
-                alert('Error de conexión: ' + error.message);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('results').style.opacity = '1';
-            }
-        });
-        // Glosario modal
-        const modal = document.getElementById('modalGlosario');
-        const btnGlosario = document.getElementById('btnGlosario');
-        const cerrarModal = document.getElementById('cerrarModal');
-
-        btnGlosario.onclick = function() {
-            modal.style.display = 'block';
-        }
-
-        cerrarModal.onclick = function() {
-            modal.style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
     <!-- Modal del Glosario -->
     <div id="modalGlosario" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
         <div style="background-color: white; margin: 5% auto; padding: 20px; width: 80%; max-width: 600px; border-radius: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3);">
@@ -461,8 +292,8 @@
                     </tr>
                     <tr>
                         <td style="padding: 8px; border-bottom: 1px solid #ddd;">Exponencial (e^x)</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>exp(x0)</code></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>exp(-x0**2)</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>exp(x0)</code></td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>exp(-x0**2)</code></td>
                     </tr>
                     <tr>
                         <td style="padding: 8px; border-bottom: 1px solid #ddd;">Logaritmo natural</td>
@@ -490,7 +321,7 @@
                         <td style="padding: 8px; border-bottom: 1px solid #ddd;"><code>sqrt(x0**2 + x1**2)</code></td>
                     </tr>
                 </table>
-            
+                
                 <h3 style="margin-top: 20px;">📝 Ejemplos de funciones útiles</h3>
                 <ul style="list-style: none; padding: 0;">
                     <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
@@ -512,5 +343,168 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // Generar inputs para punto inicial
+        function generarInputsX0() {
+            const n = parseInt(document.getElementById('n_vars').value);
+            const container = document.getElementById('x0_inputs');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < n; i++) {
+                const div = document.createElement('div');
+                div.style.marginBottom = '5px';
+                div.innerHTML = `
+                    <label style="display: inline-block; width: 50px;">x${i}:</label>
+                    <input type="number" id="x0_${i}" value="${i === 0 ? 1 : 1}" step="0.1" style="width: calc(100% - 60px);">
+                `;
+                container.appendChild(div);
+            }
+        }
+        
+        // Obtener punto inicial como array
+        function obtenerX0() {
+            const n = parseInt(document.getElementById('n_vars').value);
+            const x0 = [];
+            for (let i = 0; i < n; i++) {
+                x0.push(parseFloat(document.getElementById(`x0_${i}`).value));
+            }
+            return x0;
+        }
+        
+        // Validar función
+        function validarFuncion(funcion, n_vars) {
+            let test_func = funcion;
+            
+            // Reemplazar variables por 1
+            for (let i = 0; i < n_vars; i++) {
+                test_func = test_func.replace(new RegExp(`x${i}`, 'g'), '1');
+            }
+            
+            try {
+                const mathContext = {
+                    exp: Math.exp, log: Math.log, ln: Math.log, sin: Math.sin, 
+                    cos: Math.cos, tan: Math.tan, sqrt: Math.sqrt, abs: Math.abs,
+                    E: Math.E, pi: Math.PI
+                };
+                const evaluar = new Function(...Object.keys(mathContext), `return ${test_func}`);
+                evaluar(...Object.values(mathContext));
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('n_vars').addEventListener('change', generarInputsX0);
+        generarInputsX0();
+        
+        document.getElementById('optimizationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const n_vars = parseInt(document.getElementById('n_vars').value);
+            const funcion = document.getElementById('funcion').value;
+            const x0 = obtenerX0();
+            
+            if (x0.length !== n_vars) {
+                alert('Error: El punto inicial no coincide con el número de variables');
+                return;
+            }
+            
+            if (!validarFuncion(funcion, n_vars)) {
+                alert('Error: Función inválida. Use x0, x1, x2,... como variables');
+                return;
+            }
+            
+            const c1 = parseFloat(document.getElementById('c1').value);
+            const c2 = parseFloat(document.getElementById('c2').value);
+            
+            if (c1 <= 0 || c2 <= c1 || c2 >= 1) {
+                alert('Error: Los parámetros de Wolfe deben satisfacer 0 < c1 < c2 < 1');
+                return;
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.opacity = '0.5';
+            
+            const data = {
+                metodo: document.getElementById('metodo').value,
+                funcion: funcion,
+                x0: x0,
+                max_iter: document.getElementById('max_iter').value,
+                tol: parseFloat(document.getElementById('tol').value),
+                c1: c1,
+                c2: c2
+            };
+            
+            try {
+                const response = await fetch('/optimizar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.exito) {
+                    document.getElementById('punto_minimo').innerHTML = 
+                        `[${result.punto_minimo.map(x => x.toFixed(6)).join(', ')}]`;
+                    document.getElementById('valor_funcion').innerHTML = 
+                        result.valor_funcion.toExponential(6);
+                    document.getElementById('iteraciones').innerHTML = result.iteraciones;
+                    document.getElementById('error_final').innerHTML = 
+                        result.error_final.toExponential(6);
+                    document.getElementById('criterio').innerHTML = result.criterio_parada;
+                    document.getElementById('grafico').innerHTML = 
+                        `<h3>Gráfico de Convergencia</h3>
+                         <img src="data:image/png;base64,${result.grafico}" alt="Gráfico de convergencia">`;
+                    
+                    const valor_agregado = document.createElement('div');
+                    valor_agregado.className = 'result-item';
+                    valor_agregado.style.backgroundColor = '#e8f5e9';
+                    valor_agregado.innerHTML = `
+                        <div class="result-label">🐎 Convergencia:</div>
+                        <div class="result-value">
+                            ${result.iteraciones === parseInt(document.getElementById('max_iter').value) ? 
+                               '⚠ Se alcanzó el máximo de iteraciones' : 
+                               '✓ Convergencia alcanzada exitosamente'}
+                        </div>
+                    `;
+                    
+                    const existingValor = document.querySelector('.valor-agregado');
+                    if (existingValor) existingValor.remove();
+                    valor_agregado.classList.add('valor-agregado');
+                    document.getElementById('results').appendChild(valor_agregado);
+                    
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch(error) {
+                alert('Error de conexión: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.opacity = '1';
+            }
+        });
+        
+        // Glosario modal
+        const modal = document.getElementById('modalGlosario');
+        const btnGlosario = document.getElementById('btnGlosario');
+        const cerrarModal = document.getElementById('cerrarModal');
+
+        btnGlosario.onclick = function() {
+            modal.style.display = 'block';
+        }
+
+        cerrarModal.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
