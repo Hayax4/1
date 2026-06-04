@@ -13,7 +13,10 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-image: url('https://raw.githubusercontent.com/Hayax4/1/master/azul.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             padding: 20px;
         }
         
@@ -26,10 +29,11 @@
         }
         
         .form-section, .results-section {
-            background: white;
+            background: rgba(255, 255, 255, 0.92);
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
         }
         
         h1 {
@@ -358,16 +362,14 @@
                         `<h3>Gráfico de Convergencia</h3>
                          <img src="data:image/png;base64,${result.grafico}" alt="Gráfico de convergencia">`;
                     
-                    // Valor agregado: mostrar información adicional
+                    // Información de convergencia
                     const valor_agregado = document.createElement('div');
                     valor_agregado.className = 'result-item';
                     valor_agregado.style.backgroundColor = '#e8f5e9';
                     valor_agregado.innerHTML = `
-                        <div class="result-label">✨ Valor Agregado:</div>
+                        <div class="result-label">🐎 Convergencia:</div>
                         <div class="result-value">
-                            ✓ Condiciones de Wolfe verificadas en cada iteración<br>
-                            ✓ Búsqueda de línea adaptativa<br>
-                            ✓ ${result.iteraciones === parseInt(document.getElementById('max_iter').value) ? 
+                            ${result.iteraciones === parseInt(document.getElementById('max_iter').value) ? 
                                '⚠ Se alcanzó el máximo de iteraciones' : 
                                '✓ Convergencia alcanzada exitosamente'}
                         </div>
