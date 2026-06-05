@@ -38,6 +38,7 @@ class OptimizacionWolfe:
         self.hess = [[sp.diff(g, var) for var in self.x] for g in self.grad]
         
         self.historial_error = []
+        self.historial_alpha = []  # NUEVO: Guardar los valores de alpha
         
     def evaluar_funcion(self, x_val):
         subs = {self.x[i]: x_val[i] for i in range(self.n)}
@@ -101,6 +102,7 @@ class OptimizacionWolfe:
             
             # Búsqueda de línea con Wolfe
             alpha = self.line_search_wolfe(x, p)
+            self.historial_alpha.append(alpha)  # NUEVO: Guardar alpha
             
             # Actualización
             x = x + alpha * p
@@ -132,6 +134,7 @@ class OptimizacionWolfe:
             
             # Búsqueda de línea con Wolfe
             alpha = self.line_search_wolfe(x, p)
+            self.historial_alpha.append(alpha)  # NUEVO: Guardar alpha
             
             # Actualización
             x_new = x + alpha * p
@@ -165,6 +168,7 @@ class OptimizacionWolfe:
             
             # Búsqueda de línea con Wolfe
             alpha = self.line_search_wolfe(x, p)
+            self.historial_alpha.append(alpha)  # NUEVO: Guardar alpha
             
             # Actualización
             x = x + alpha * p
@@ -242,7 +246,8 @@ def optimizar():
             'error_final': error_final,
             'criterio_parada': f'Norma del gradiente < {tol}',
             'grafico': grafico,
-            'historial_puntos': [p.tolist() for p in historial]
+            'historial_puntos': [p.tolist() for p in historial],
+            'historial_alpha': opt.historial_alpha  # NUEVO: Enviar historial de alpha
         }
         
         return jsonify(resultado)
