@@ -79,6 +79,7 @@
             border-radius: 5px;
         }
         
+        /* Estilos para botones normales */
         button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -94,6 +95,38 @@
         
         button:hover {
             transform: translateY(-2px);
+        }
+        
+        /* Botón de música flotante */
+        .btn-musica {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38a169 0%, #276749 100%);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            width: 45px;
+        }
+        
+        .btn-musica:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+        
+        .btn-musica.activo {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
         }
         
         .result-item {
@@ -183,10 +216,20 @@
             .container {
                 grid-template-columns: 1fr;
             }
+            .btn-musica {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                top: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Botón de música flotante -->
+    <button id="btnMusica" class="btn-musica" title="Música de fondo">🎵</button>
+
     <div class="container">
         <div class="form-section">
             <h1>📊 Optimizador Numérico</h1>
@@ -302,6 +345,12 @@
         </div>
     </div>
     
+    <!-- Reproductor de música de fondo -->
+    <audio id="audioFondo" loop preload="auto">
+        <source src="https://raw.githubusercontent.com/Hayax4/1/master/omar_azul.mp3" type="audio/mpeg">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+    
     <!-- Modal del Glosario -->
     <div id="modalGlosario" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
         <div style="background-color: white; margin: 5% auto; padding: 20px; width: 80%; max-width: 600px; border-radius: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.3);">
@@ -392,6 +441,31 @@
     </div>
     
     <script>
+        // Control de música de fondo (botón flotante)
+        const audio = document.getElementById('audioFondo');
+        const btnMusica = document.getElementById('btnMusica');
+        let musicaActiva = false;
+
+        if (btnMusica) {
+            btnMusica.onclick = function() {
+                if (musicaActiva) {
+                    audio.pause();
+                    btnMusica.innerHTML = '🎵';
+                    btnMusica.classList.remove('activo');
+                    btnMusica.title = 'Música de fondo (pausada)';
+                    musicaActiva = false;
+                } else {
+                    audio.play().catch(error => {
+                        console.log('Error al reproducir:', error);
+                    });
+                    btnMusica.innerHTML = '⏸';
+                    btnMusica.classList.add('activo');
+                    btnMusica.title = 'Música de fondo (sonando)';
+                    musicaActiva = true;
+                }
+            };
+        }
+        
         // Generar inputs para punto inicial
         function generarInputsX0() {
             const n = parseInt(document.getElementById('n_vars').value);
@@ -523,7 +597,7 @@
                     valor_agregado.classList.add('valor-agregado');
                     document.getElementById('results').appendChild(valor_agregado);
                     
-                    // ========== NUEVO: Mostrar historial de iteraciones y alpha ==========
+                    // Mostrar historial de iteraciones y alpha
                     const cuerpoTabla = document.getElementById('cuerpoTablaAlpha');
                     cuerpoTabla.innerHTML = '';
                     
@@ -539,7 +613,6 @@
                     } else {
                         cuerpoTabla.innerHTML = '<tr><td colspan="2" style="text-align: center;">No hay datos de α disponibles</td></tr>';
                     }
-                    // ========== FIN NUEVO ==========
                     
                 } else {
                     alert('Error: ' + result.error);
