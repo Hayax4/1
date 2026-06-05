@@ -153,6 +153,31 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+
+        /* Estilos para la tabla de historial */
+        .historial-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .historial-table th,
+        .historial-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .historial-table th {
+            background: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        .historial-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            padding: 0;
+        }
         
         @media (max-width: 768px) {
             .container {
@@ -251,6 +276,28 @@
             <div id="loading" class="loading">
                 <div class="spinner"></div>
                 <p>Optimizando...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nuevo cuadro de historial de iteraciones y alpha (ocupa ambas columnas) -->
+    <div style="margin-top: 20px; max-width: 1400px; margin-left: auto; margin-right: auto;">
+        <div class="results-section">
+            <h2>📋 Historial de Iteraciones (α)</h2>
+            <div class="historial-container">
+                <table class="historial-table" id="tablaAlpha">
+                    <thead>
+                        <tr>
+                            <th>Iteración</th>
+                            <th>α (tamaño del paso)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaAlpha">
+                        <tr>
+                            <td colspan="2" style="text-align: center;">—</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -475,6 +522,24 @@
                     if (existingValor) existingValor.remove();
                     valor_agregado.classList.add('valor-agregado');
                     document.getElementById('results').appendChild(valor_agregado);
+                    
+                    // ========== NUEVO: Mostrar historial de iteraciones y alpha ==========
+                    const cuerpoTabla = document.getElementById('cuerpoTablaAlpha');
+                    cuerpoTabla.innerHTML = '';
+                    
+                    if (result.historial_alpha && result.historial_alpha.length > 0) {
+                        for (let i = 0; i < result.historial_alpha.length; i++) {
+                            const fila = document.createElement('tr');
+                            fila.innerHTML = `
+                                <td style="padding: 8px;">${i + 1}</td>
+                                <td style="padding: 8px;">${result.historial_alpha[i].toExponential(6)}</td>
+                            `;
+                            cuerpoTabla.appendChild(fila);
+                        }
+                    } else {
+                        cuerpoTabla.innerHTML = '<tr><td colspan="2" style="text-align: center;">No hay datos de α disponibles</td></tr>';
+                    }
+                    // ========== FIN NUEVO ==========
                     
                 } else {
                     alert('Error: ' + result.error);
