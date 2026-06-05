@@ -532,7 +532,7 @@
                             const fila = document.createElement('tr');
                             fila.innerHTML = `
                                 <td style="padding: 8px;">${i + 1}</td>
-                                <td style="padding: 8px;">${result.historial_alpha[i].toExponential(6)}</td>
+                                <td style="padding: 8px;">${result.historial_alpha[i].toFixed(6)}</td>
                             `;
                             cuerpoTabla.appendChild(fila);
                         }
