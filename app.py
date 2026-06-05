@@ -38,22 +38,37 @@ class OptimizacionWolfe:
         self.hess = [[sp.diff(g, var) for var in self.x] for g in self.grad]
         
         self.historial_error = []
-        self.historial_alpha = []  # NUEVO: Guardar los valores de alpha
+        self.historial_alpha = []  # Guardar los valores de alpha
         
     def evaluar_funcion(self, x_val):
         subs = {self.x[i]: x_val[i] for i in range(self.n)}
-        return float(self.f.subs(subs))
+        resultado = self.f.subs(subs)
+        # Manejar posibles resultados no numéricos
+        if resultado.is_real is False or resultado.is_number is False:
+            return float('inf')
+        return float(resultado)
     
     def evaluar_gradiente(self, x_val):
         subs = {self.x[i]: x_val[i] for i in range(self.n)}
-        return np.array([float(g.subs(subs)) for g in self.grad])
+        grad_vals = []
+        for g in self.grad:
+            val = g.subs(subs)
+            if val.is_real is False or val.is_number is False:
+                grad_vals.append(1e6)  # Valor grande para indicar error
+            else:
+                grad_vals.append(float(val))
+        return np.array(grad_vals)
     
     def evaluar_hessiano(self, x_val):
         subs = {self.x[i]: x_val[i] for i in range(self.n)}
         H = np.zeros((self.n, self.n))
         for i in range(self.n):
             for j in range(self.n):
-                H[i,j] = float(self.hess[i][j].subs(subs))
+                val = self.hess[i][j].subs(subs)
+                if val.is_real is False or val.is_number is False:
+                    H[i,j] = 1e6
+                else:
+                    H[i,j] = float(val)
         return H
     
     def wolfe_conditions(self, x, p, alpha):
@@ -62,6 +77,10 @@ class OptimizacionWolfe:
         f_x = self.evaluar_funcion(x)
         f_x_new = self.evaluar_funcion(x_new)
         grad_x = self.evaluar_gradiente(x)
+        
+        # Si la función nueva es infinita, condición falla
+        if np.isinf(f_x_new):
+            return False
         
         # Condición 1: Suficiente decrecimiento (Armijo)
         cond1 = f_x_new <= f_x + self.c1 * alpha * np.dot(grad_x, p)
@@ -76,9 +95,11 @@ class OptimizacionWolfe:
         """Búsqueda de línea con condiciones de Wolfe"""
         alpha = 1.0
         rho = 0.5  # Factor de reducción
-        max_iter_ls = 100
+        max_iter_ls = 50  # Reducido para evitar bucles infinitos
         
         for _ in range(max_iter_ls):
+            if alpha < 1e-10:  # Evitar alpha demasiado pequeño
+                return alpha
             if self.wolfe_conditions(x, p, alpha):
                 return alpha
             alpha *= rho
@@ -102,7 +123,7 @@ class OptimizacionWolfe:
             
             # Búsqueda de línea con Wolfe
             alpha = self.line_search_wolfe(x, p)
-            self.historial_alpha.append(alpha)  # NUEVO: Guardar alpha
+            self.historial_alpha.append(float(alpha))
             
             # Actualización
             x = x + alpha * p
@@ -129,12 +150,12 @@ class OptimizacionWolfe:
                 p = -grad
             else:
                 # Método de Fletcher-Reeves
-                beta = np.dot(grad, grad) / np.dot(grad_prev, grad_prev)
+                beta = np.dot(grad, grad) / (np.dot(grad_prev, grad_prev) + 1e-12)
                 p = -grad + beta * p_prev
             
             # Búsqueda de línea con Wolfe
             alpha = self.line_search_wolfe(x, p)
-            self.historial_alpha.append(alpha)  # NUEVO: Guardar alpha
+            self.historial_alpha.append(float(alpha))
             
             # Actualización
             x_new = x + alpha * p
@@ -162,13 +183,16 @@ class OptimizacionWolfe:
             try:
                 # Dirección de Newton
                 p = -np.linalg.solve(hess, grad)
+                # Verificar que p es finito
+                if np.any(np.isnan(p)) or np.any(np.isinf(p)):
+                    p = -grad
             except np.linalg.LinAlgError:
                 # Si Hessiano es singular, usar gradiente
                 p = -grad
             
             # Búsqueda de línea con Wolfe
             alpha = self.line_search_wolfe(x, p)
-            self.historial_alpha.append(alpha)  # NUEVO: Guardar alpha
+            self.historial_alpha.append(float(alpha))
             
             # Actualización
             x = x + alpha * p
@@ -241,13 +265,13 @@ def optimizar():
         resultado = {
             'exito': True,
             'punto_minimo': x_min.tolist(),
-            'valor_funcion': f_min,
+            'valor_funcion': float(f_min),
             'iteraciones': n_iter,
-            'error_final': error_final,
+            'error_final': float(error_final),
             'criterio_parada': f'Norma del gradiente < {tol}',
             'grafico': grafico,
             'historial_puntos': [p.tolist() for p in historial],
-            'historial_alpha': opt.historial_alpha  # NUEVO: Enviar historial de alpha
+            'historial_alpha': opt.historial_alpha
         }
         
         return jsonify(resultado)
